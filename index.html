@@ -1,66 +1,74 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Mapa Calibración Interdental – Avenida 35 (V20)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa Calibración Interdental</title>
+
 <style>
-body{margin:0;font-family:Arial;background:#f0f0f0;text-align:center;}
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:#f0f0f0;
+    text-align:center;
+}
 
 #header{
- position:sticky;top:0;z-index:50;
- background:#fff;padding:8px 10px;
- border-bottom:2px solid #ddd;
- display:flex;justify-content:center;align-items:center;gap:10px;
+    background:white;
+    padding:10px;
+    position:sticky;
+    top:0;
+    z-index:100;
+    border-bottom:1px solid #ddd;
 }
 
-#header input{
- padding:6px 8px;font-size:14px;width:140px;
- border:1px solid #999;border-radius:4px;
+#container{
+    position:relative;
+    display:inline-block;
+    margin-top:10px;
 }
 
-#container{position:relative;display:inline-block;margin-top:6px;}
-#bg{display:block;max-width:100%;height:auto;}
-canvas{position:absolute;top:0;left:0;touch-action:none;}
+#bg{
+    max-width:100%;
+    height:auto;
+    display:block;
+}
+
+canvas{
+    position:absolute;
+    top:0;
+    left:0;
+    touch-action:none;
+}
 
 #toolbar{
- position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);
- background:rgba(255,255,255,.95);
- padding:8px 10px;border:1px solid #aaa;
- border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.2);
- z-index:20;cursor:move;
+    position:absolute;
+    top:45%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(255,255,255,0.95);
+    padding:10px;
+    border-radius:10px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    z-index:200;
+}
+
+.row{
+    display:flex;
+    gap:6px;
+    justify-content:center;
+    flex-wrap:wrap;
 }
 
 button{
- margin:2px;padding:4px 7px;border:1px solid #555;
- cursor:pointer;font-size:12px;font-weight:bold;border-radius:4px;
-}
-
-.color-btn{color:white;}
-
-#previewBox{
- display:none;
- position:fixed;
- top:0;left:0;width:100%;height:100%;
- background:rgba(0,0,0,0.8);
- z-index:200;
- justify-content:center;
- align-items:center;
- flex-direction:column;
-}
-
-#previewBox img{
- max-width:90%;
- max-height:80%;
- border:4px solid white;
- background:white;
-}
-
-#previewBox button{
- margin-top:10px;
- padding:8px 14px;
- font-size:14px;
+    border:none;
+    padding:6px 10px;
+    border-radius:6px;
+    font-weight:bold;
+    cursor:pointer;
 }
 </style>
 </head>
@@ -68,236 +76,149 @@ button{
 <body>
 
 <div id="header">
- <strong>ID paciente:</strong>
- <input type="number" id="patientId" placeholder="Ej. 12345">
+    <strong>ID paciente:</strong>
+    <input type="text" placeholder="Ej. 12345">
 </div>
 
 <div id="container">
+    <img id="bg" src="mapa_bg.png">
+    <canvas id="canvas"></canvas>
 
-<div id="toolbar">
+    <div id="toolbar">
 
-<b>PRIME</b><br>
-<button class="color-btn" style="background:#009FE3" onclick="selectColor('#009FE3','prime')">06</button>
-<button class="color-btn" style="background:#E30613" onclick="selectColor('#E30613','prime')">07</button>
-<button class="color-btn" style="background:#E6007E" onclick="selectColor('#E6007E','prime')">08</button>
-<button class="color-btn" style="background:#FFD500;color:#000" onclick="selectColor('#FFD500','prime')">09</button>
-<button class="color-btn" style="background:#7CB518" onclick="selectColor('#7CB518','prime')">011</button>
+        <div><strong>PRIME</strong></div>
+        <div class="row">
+            <button style="background:#1E90FF" onclick="setColor('#1E90FF')">06</button>
+            <button style="background:#FF0000" onclick="setColor('#FF0000')">07</button>
+            <button style="background:#FF1493" onclick="setColor('#FF1493')">08</button>
+            <button style="background:#FFD700" onclick="setColor('#FFD700')">09</button>
+            <button style="background:#32CD32" onclick="setColor('#32CD32')">011</button>
+        </div>
 
-<br><br>
+        <div><strong>PERIO</strong></div>
+        <div class="row">
+            <button style="background:#B22222" onclick="setColor('#B22222','P')">405</button>
+            <button style="background:#FF69B4" onclick="setColor('#FF69B4','P')">406</button>
+            <button style="background:#8A2BE2" onclick="setColor('#8A2BE2','P')">408</button>
+            <button style="background:#003366" onclick="setColor('#003366','P')">410</button>
+        </div>
 
-<b>PERIO</b><br>
-<button class="color-btn" style="background:#E30613" onclick="selectColor('#E30613','perio')">405</button>
-<button class="color-btn" style="background:#E83E8C" onclick="selectColor('#E83E8C','perio')">406</button>
-<button class="color-btn" style="background:#6F42C1" onclick="selectColor('#6F42C1','perio')">408</button>
-<button class="color-btn" style="background:#0B3C5D" onclick="selectColor('#0B3C5D','perio')">410</button>
+        <div class="row">
+            <button onclick="setMode('erase')">X</button>
+            <button onclick="undo()">↩</button>
+            <button onclick="saveImage()">💾</button>
+        </div>
 
-<br><br>
-
-<button onclick="selectFree()">X</button>
-<button onclick="selectEraser()">🧽</button>
-<button onclick="undo()">↩</button>
-<button onclick="saveImage()">💾</button>
-
-</div>
-
-<img id="bg" src="mapa_bg.png">
-<canvas id="canvas"></canvas>
-
-</div>
-
-<div id="previewBox">
- <img id="previewImg">
- <button onclick="downloadImage()">⬇️ Descargar imagen</button>
- <button onclick="closePreview()">Cerrar</button>
+    </div>
 </div>
 
 <script>
-const canvas=document.getElementById("canvas");
-const ctx=canvas.getContext("2d");
-const bg=document.getElementById("bg");
-const toolbar=document.getElementById("toolbar");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const bg = document.getElementById("bg");
 
-let history=[];
-let color="#000";
-let mode="arrow";
-let type="prime";
-let start=null;
-let drawing=false;
-let lastImageURL="";
+let drawing = false;
+let startX, startY;
+let color = "#000";
+let perio = "";
+let mode = "draw";
+let history = [];
 
-bg.onload=()=>{
- canvas.width=bg.clientWidth;
- canvas.height=bg.clientHeight;
- saveState();
+bg.onload = () => {
+    canvas.width = bg.clientWidth;
+    canvas.height = bg.clientHeight;
 };
 
-function saveState(){
- history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+function setColor(c,p=""){
+    color = c;
+    perio = p;
+    mode = "draw";
+}
+
+function setMode(m){
+    mode = m;
+}
+
+function getPos(e){
+    const rect = canvas.getBoundingClientRect();
+    if(e.touches){
+        return {
+            x: e.touches[0].clientX - rect.left,
+            y: e.touches[0].clientY - rect.top
+        };
+    } else {
+        return {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+    }
+}
+
+function startDraw(e){
+    e.preventDefault();
+    const pos = getPos(e);
+    startX = pos.x;
+    startY = pos.y;
+    drawing = true;
+}
+
+function endDraw(e){
+    if(!drawing) return;
+    drawing = false;
+
+    const pos = getPos(e.changedTouches ? e.changedTouches[0] : e);
+
+    history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
+
+    if(mode==="erase"){
+        ctx.clearRect(pos.x-12,pos.y-12,24,24);
+        return;
+    }
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(startX,startY);
+    ctx.lineTo(pos.x,pos.y);
+    ctx.stroke();
+
+    const angle = Math.atan2(pos.y-startY,pos.x-startX);
+    const headlen = 15;
+    ctx.beginPath();
+    ctx.moveTo(pos.x,pos.y);
+    ctx.lineTo(pos.x-headlen*Math.cos(angle-Math.PI/6),
+               pos.y-headlen*Math.sin(angle-Math.PI/6));
+    ctx.lineTo(pos.x-headlen*Math.cos(angle+Math.PI/6),
+               pos.y-headlen*Math.sin(angle+Math.PI/6));
+    ctx.lineTo(pos.x,pos.y);
+    ctx.fillStyle=color;
+    ctx.fill();
+
+    if(perio==="P"){
+        ctx.fillStyle=color;
+        ctx.font="16px Arial";
+        ctx.fillText("P",startX-10,startY-10);
+    }
 }
 
 function undo(){
- if(history.length>1){
-  history.pop();
-  ctx.putImageData(history[history.length-1],0,0);
- }
+    if(history.length>0){
+        ctx.putImageData(history.pop(),0,0);
+    }
 }
 
-function selectColor(c,t){ color=c; type=t; mode="arrow"; }
-function selectFree(){ mode="free"; }
-function selectEraser(){ mode="erase"; }
-
-function hasInk(x,y){
- const d=ctx.getImageData(x-2,y-2,4,4).data;
- for(let i=0;i<d.length;i+=4){
-  if(d[i+3]>40) return true;
- }
- return false;
-}
-
-function clean(x,y){
- ctx.clearRect(x-20,y-20,40,40);
-}
-
-function drawArrow(x1,y1,x2,y2){
-
- saveState();
-
- const ang=Math.atan2(y2-y1,x2-x1);
- const len=50, head=14;
-
- const ex=x1+len*Math.cos(ang);
- const ey=y1+len*Math.sin(ang);
-
- ctx.strokeStyle=color;
- ctx.fillStyle=color;
- ctx.lineWidth=6;
- ctx.lineCap="round";
-
- ctx.beginPath();
- ctx.moveTo(x1,y1);
- ctx.lineTo(ex,ey);
- ctx.stroke();
-
- ctx.beginPath();
- ctx.moveTo(ex,ey);
- ctx.lineTo(ex-head*Math.cos(ang-Math.PI/6), ey-head*Math.sin(ang-Math.PI/6));
- ctx.lineTo(ex-head*Math.cos(ang+Math.PI/6), ey-head*Math.sin(ang+Math.PI/6));
- ctx.closePath();
- ctx.fill();
-
- if(type==="perio"){
-  ctx.font="bold 14px Arial";
-  ctx.fillStyle=color;
-  const px=x1-12*Math.cos(ang);
-  const py=y1-12*Math.sin(ang);
-  ctx.fillText("P",px,py);
- }
-}
-
-// Mouse
-canvas.addEventListener("mousedown",e=>{
- const x=e.offsetX,y=e.offsetY;
-
- if(mode==="arrow"){
-  start={x,y};
- }
- else if(mode==="free"){
-  drawing=true;
-  saveState();
-  ctx.beginPath();
-  ctx.moveTo(x,y);
- }
- else if(mode==="erase"){
-  if(hasInk(x,y)){
-   saveState(); clean(x,y);
-  }
- }
-});
-
-canvas.addEventListener("mousemove",e=>{
- if(drawing && mode==="free"){
-  ctx.lineWidth=4;
-  ctx.strokeStyle="black";
-  ctx.lineTo(e.offsetX,e.offsetY);
-  ctx.stroke();
- }
-});
-
-canvas.addEventListener("mouseup",e=>{
-
- if(mode==="arrow" && start){
-  drawArrow(start.x,start.y,e.offsetX,e.offsetY);
-  start=null;
- }
-
- drawing=false;
-});
-
-canvas.addEventListener("mouseout",()=>drawing=false);
-
-// Drag toolbar
-let drag=false,dx=0,dy=0;
-
-toolbar.addEventListener("mousedown",e=>{
- drag=true;
- dx=e.clientX-toolbar.offsetLeft;
- dy=e.clientY-toolbar.offsetTop;
-});
-
-document.addEventListener("mousemove",e=>{
- if(drag){
-  toolbar.style.left=(e.clientX-dx)+"px";
-  toolbar.style.top=(e.clientY-dy)+"px";
-  toolbar.style.transform="none";
- }
-});
-
-document.addEventListener("mouseup",()=>drag=false);
-
-// SAVE with preview
 function saveImage(){
-
- const temp=document.createElement("canvas");
- temp.width=canvas.width;
- temp.height=canvas.height;
-
- const t=temp.getContext("2d");
-
- t.drawImage(bg,0,0,canvas.width,canvas.height);
- t.drawImage(canvas,0,0);
-
- const pid=document.getElementById("patientId").value;
-
- if(pid){
-  t.font="bold 16px Arial";
-  t.fillStyle="#000";
-  t.fillText("ID: "+pid,10,22);
- }
-
- lastImageURL=temp.toDataURL("image/png");
-
- document.getElementById("previewImg").src=lastImageURL;
- document.getElementById("previewBox").style.display="flex";
+    const link=document.createElement("a");
+    link.download="mapa_calibracion.png";
+    link.href=canvas.toDataURL();
+    link.click();
 }
 
-function closePreview(){
- document.getElementById("previewBox").style.display="none";
-}
+canvas.addEventListener("mousedown",startDraw);
+canvas.addEventListener("mouseup",endDraw);
 
-function downloadImage(){
-
- if(!lastImageURL) return;
-
- const pid=document.getElementById("patientId").value;
- const name="calibracion_"+(pid||"paciente")+".png";
-
- const a=document.createElement("a");
- a.href=lastImageURL;
- a.download=name;
- document.body.appendChild(a);
- a.click();
- document.body.removeChild(a);
-}
+canvas.addEventListener("touchstart",startDraw);
+canvas.addEventListener("touchend",endDraw);
 </script>
 
 </body>
